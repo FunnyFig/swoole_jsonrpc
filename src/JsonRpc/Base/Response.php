@@ -28,7 +28,7 @@ class Response extends Rpc
   public function createStdError($code, $id = null)
   {
     $this->result = null;
-    $this->error = $this->makeError($code);
+    $this->error = self::makeError($code);
     $this->id = $id;
   }
 
@@ -96,7 +96,7 @@ class Response extends Rpc
   }
 
 
-  private function makeError($code)
+  static function makeError($code)
   {
 
     switch ($code)
@@ -142,12 +142,12 @@ class Response extends Rpc
 
     if (is_int($error))
     {
-      $value = $this->makeError($error);
+      $value = self::makeError($error);
     }
     else
     {
 
-      $value = $this->makeError(static::ERR_SERVER);
+      $value = self::makeError(static::ERR_SERVER);
 
       if (is_scalar($error))
       {
@@ -171,7 +171,7 @@ class Response extends Rpc
         }
         elseif ($code)
         {
-          $value = $this->makeError($code);
+          $value = self::makeError($code);
         }
         else
         {

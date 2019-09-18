@@ -164,22 +164,25 @@ class Rpc
     $code = isset($error['code']) ? $error['code'] : null;
     $message = isset($error['message']) ? $error['message'] : null;
 
-    $allowed = array(-32700, -32600, -32601, -32602, -32603);
+    // the range [-32768, -32000] is reserved,
+    // but the remainder is available for application defined errors!
+//    $allowed = array(-32700, -32600, -32601, -32602, -32603);
+//
+//    if (!in_array($code, $allowed))
+//    {
+//
+//      $max = -32000;
+//      $min = -32099;
+//
+//      if ($code < $min || $code > $max)
+//      {
+//        return;
+//      }
+//
+//    }
 
-    if (!in_array($code, $allowed))
-    {
-
-      $max = -32000;
-      $min = -32099;
-
-      if ($code < $min || $code > $max)
-      {
-        return;
-      }
-
-    }
-
-    return is_int($code) && $code && is_string($message);
+//    return is_int($code) && $code && is_string($message);
+    return is_int($code) && is_string($message);
 
   }
 
