@@ -2,8 +2,8 @@
 
   "name": "funnyfig/swoole_jsonrpc",
   "description": "JSON-RPC 2.0 client/server implementation for swoole",
-  "keywords": ["json", "rpc", "json-rpc", "api"],
-  "homepage": "http://github.com/johnstevenson/jsonrpc",
+  "version": "1.0.0",
+  "keywords": ["json", "rpc", "json-rpc", "api", "swoole"],
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -19,7 +19,7 @@
 
   "require": {
     "php": ">=5.3.0",
-    "ext-swoole": "4.4.2"
+    "ext-swoole": ">=4.4.2"
   },
 
   "require-dev": {

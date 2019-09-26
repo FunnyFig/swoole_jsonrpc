@@ -155,6 +155,7 @@ class SwooleServer {
 			//if (count($params)
 			//return call_user_func_array($method, $params);
 			$rv = call_user_func_array($method, $params);
+			//$rv = call_user_func($method, ...$params);
 			echo "rv is ..\n";
 			var_dump($rv);
 			return $rv;
