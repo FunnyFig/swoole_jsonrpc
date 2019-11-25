@@ -47,7 +47,6 @@ class SwooleServer {
 				}
 
 				if (count($reqs) == 1) {
-					echo "invoke1\n";
 					// nothrow
 					return $cb($this->invoke($reqs[0]));
 				}
@@ -88,7 +87,6 @@ class SwooleServer {
 	{
 		try {
 			if ($req->fault) {
-				echo "oops fault\n";
 				throw new RpcError(Rpc::ERR_REQUEST);
 			}
 
@@ -98,18 +96,14 @@ class SwooleServer {
 				throw new RpcError(Rpc::ERR_METHOD);
 			}
 
-			echo "found method\n";
-
 			if (!$cb) {
-				// convert
-				//return $this->_invoke($method, $req->params);
-				
 				// about void function
 				//https://groups.google.com/forum/#!topic/json-rpc/esusPURMBu8
 				$rv = $this->_invoke($method, $req->params);
 				return $this->createResponse($req->id, $rv);
 			}
 
+			// batch
 			go(function () use($req, $method, $cb) {
 				// we can not use outter exception handler
 				try {
@@ -118,10 +112,18 @@ class SwooleServer {
 					$cb($this->createResponse($req->id, $rv));
 				}
 				catch (RpcError $e) {
+					if (!$req->notification) {
+						$id = $e->getCode() != Rpc::ERR_REQUEST? $req->id : null;
+						$rv = $this->createResponse($id, $e->getRpcError(), false);
+						return $cb($rv);
+					}
 				}
 				catch (\Throwable $e) {
+					if (!$req->notification) {
+						$rv = $this->createResponse($req->id, Rpc::ERR_INTERNAL, false);
+						return $cb($rv);
+					}
 				}
-				//
 			});
 			
 		}
@@ -134,11 +136,8 @@ class SwooleServer {
 				return $cb? $cb($rv) : $rv;
 			}
 		}
-		//catch (\Exception $e) {
 		catch (\Throwable $t) {
-			echo "$t\n";
 			if (!$req->notification) {
-				//$e = new Error(Rpc::ERR_INTERNAL
 				$rv = $this->createResponse($req->id, Rpc::ERR_INTERNAL, false);
 				return $cb? $cb($rv) : $rv;
 			}
@@ -152,12 +151,9 @@ class SwooleServer {
 			if (!is_array($params)) $params = [$params];
 			var_dump($params);
 
-			//if (count($params)
-			//return call_user_func_array($method, $params);
 			$rv = call_user_func_array($method, $params);
-			//$rv = call_user_func($method, ...$params);
-			echo "rv is ..\n";
-			var_dump($rv);
+			//echo "rv is ..\n";
+			//var_dump($rv);
 			return $rv;
 		}
 		catch (RpcError $e) {
@@ -168,7 +164,6 @@ class SwooleServer {
 			throw new RpcError(Rpc::ERR_PARAMS);
 		}
 		catch (\Throwable $t) {
-			echo "$t\n";
 			throw $e;
 		}
 	}
