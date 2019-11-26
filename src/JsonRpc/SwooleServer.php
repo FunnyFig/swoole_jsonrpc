@@ -149,7 +149,7 @@ class SwooleServer {
 		try {
 			// we pass params as is.
 			if (!is_array($params)) $params = [$params];
-			var_dump($params);
+			//var_dump($params);
 
 			$rv = call_user_func_array($method, $params);
 			//echo "rv is ..\n";
