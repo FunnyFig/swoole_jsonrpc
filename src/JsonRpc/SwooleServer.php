@@ -164,7 +164,7 @@ class SwooleServer {
 			throw new RpcError(Rpc::ERR_PARAMS);
 		}
 		catch (\Throwable $t) {
-			throw $e;
+			throw $t;
 		}
 	}
 
