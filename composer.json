@@ -2,7 +2,7 @@
 
   "name": "funnyfig/swoole_jsonrpc",
   "description": "JSON-RPC 2.0 client/server implementation for swoole",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "keywords": ["json", "rpc", "json-rpc", "api", "swoole"],
   "type": "library",
   "license": "MIT",
