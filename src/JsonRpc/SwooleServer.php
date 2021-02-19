@@ -1,6 +1,8 @@
 <?php
 namespace JsonRpc;
 
+
+
 use JsonRpc\Base\Rpc;
 use JsonRpc\Base\Request;
 use JsonRpc\Base\Response;
@@ -51,13 +53,20 @@ class SwooleServer {
 					return $cb($this->invoke($reqs[0]));
 				}
 
-				$chan = $n_res>0? new chan($n_res) : null;
+				$chan = $n_res>0? new \chan($n_res) : null;
 				foreach ($reqs as $req) {
 					// nothrow
-					$this->invoke($req
-						, function($res) use($chan) {
-							$chan->push($res);
-						});
+					if (!$req->notification) {
+						$this->invoke($req
+							, function($res) use($chan) {
+								$chan->push($res);
+							});
+					}
+					else {
+						$this->invoke($req
+							, function($res) {
+							});
+					}
 				}
 
 				if ($n_res) {
@@ -65,7 +74,11 @@ class SwooleServer {
 						return $chan->pop();
 					}, range(0, $n_res-1));
 
-					$cb("[$implode('.', $resps)]");
+					$resps = join(',', $resps);
+					$cb("[$resps]");
+				}
+				else {
+					$cb();
 				}
 			}
 			// TODO: ID needed
@@ -100,6 +113,9 @@ class SwooleServer {
 				// about void function
 				//https://groups.google.com/forum/#!topic/json-rpc/esusPURMBu8
 				$rv = $this->_invoke($method, $req->params);
+				if ($req->notification) {
+					return;
+				}
 				return $this->createResponse($req->id, $rv);
 			}
 
@@ -109,6 +125,9 @@ class SwooleServer {
 				try {
 					// convert
 					$rv = $this->_invoke($method, $req->params);
+					if ($req->notification) {
+						return $cb();
+					}
 					$cb($this->createResponse($req->id, $rv));
 				}
 				catch (RpcError $e) {
@@ -147,14 +166,7 @@ class SwooleServer {
 	protected function _invoke($method, $params)
 	{
 		try {
-			// we pass params as is.
-			if (!is_array($params)) $params = [$params];
-			//var_dump($params);
-
-			$rv = call_user_func_array($method, $params);
-			//echo "rv is ..\n";
-			//var_dump($rv);
-			return $rv;
+			return $method($params);
 		}
 		catch (RpcError $e) {
 			throw $e;
